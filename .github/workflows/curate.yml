@@ -1,0 +1,50 @@
+name: Weekly Hut Curation
+
+on:
+  schedule:
+    # Jeden Sonntag um 03:00 UTC
+    - cron: '0 3 * * 0'
+  # Auch manuell auslösbar (GitHub → Actions → "Run workflow")
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Anzahl Hütten (Standard: 300)'
+        required: false
+        default: '300'
+
+jobs:
+  curate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # damit der Bot commiten darf
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Abhängigkeiten installieren
+        run: pip install -r requirements.txt
+
+      - name: Kurations-Job ausführen
+        run: |
+          LIMIT="${{ github.event.inputs.limit || '300' }}"
+          echo "Starte Kuration mit Limit=$LIMIT"
+          python curator.py --limit $LIMIT
+
+      - name: curated_huts.json committen
+        run: |
+          git config user.name  "curator-bot"
+          git config user.email "curator-bot@github-actions"
+          git add curated_huts.json
+          # Nur committen wenn sich etwas geändert hat
+          git diff --staged --quiet && echo "Keine Änderungen" || \
+            git commit -m "chore: weekly hut curation $(date -u +%Y-%m-%d)"
+          git push

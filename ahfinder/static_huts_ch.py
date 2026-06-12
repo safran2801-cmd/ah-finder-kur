@@ -1,0 +1,70 @@
+"""Kuratierte Schweizer SAC-Hütten als Fallback (wenn Overpass nicht erreichbar)."""
+from __future__ import annotations
+
+
+def get_static_huts_ch() -> list:
+    return [
+        {
+            "osm_id": "static/ch/1",
+            "name": "Kesch-Hütte SAC",
+            "lat": 46.6197, "lon": 9.8833, "ele": 2632,
+            "operator": "SAC Sektion Albula", "website": "https://www.kesch-huette.ch",
+            "sac_booking": None, "is_sac": True,
+            "wikidata": None, "wikipedia": "de:Kesch-Hütte",
+            "capacity": 70, "country": "CH", "shelter": None,
+            "reservation": "recommended", "phone": None,
+        },
+        {
+            "osm_id": "static/ch/2",
+            "name": "Chamanna d'Ela CAS",
+            "lat": 46.5311, "lon": 9.6483, "ele": 2252,
+            "operator": "SAC-Sektion Davos", "website": "https://www.huette-ela.ch",
+            "sac_booking": None, "is_sac": True,
+            "wikidata": None, "wikipedia": None,
+            "capacity": 55, "country": "CH", "shelter": None,
+            "reservation": "recommended", "phone": None,
+        },
+        {
+            "osm_id": "static/ch/3",
+            "name": "Lischana-Hütte SAC",
+            "lat": 46.8017, "lon": 10.3289, "ele": 2500,
+            "operator": "SAC Sektion Bernina", "website": None,
+            "sac_booking": "https://www.sac-cas.ch/de/huetten-und-touren/sac-tourenportal/2147000156",
+            "is_sac": True,
+            "wikidata": None, "wikipedia": None,
+            "capacity": 50, "country": "CH", "shelter": None,
+            "reservation": "recommended", "phone": None,
+        },
+        {
+            "osm_id": "static/ch/4",
+            "name": "Clubhütte Bifertenhütte",
+            "lat": 46.8511, "lon": 9.0156, "ele": 2435,
+            "operator": "SAC Sektion Tödi", "website": None,
+            "sac_booking": "https://www.sac-cas.ch/de/huetten-und-touren/sac-tourenportal/2147000034",
+            "is_sac": True,
+            "wikidata": None, "wikipedia": None,
+            "capacity": 40, "country": "CH", "shelter": None,
+            "reservation": "recommended", "phone": None,
+        },
+        {
+            "osm_id": "static/ch/5",
+            "name": "Trifthütte SAC",
+            "lat": 46.7472, "lon": 8.3803, "ele": 2520,
+            "operator": "SAC Sektion Aarau", "website": "https://www.trifthuette.ch",
+            "sac_booking": None, "is_sac": True,
+            "wikidata": None, "wikipedia": "de:Trifthütte",
+            "capacity": 80, "country": "CH", "shelter": None,
+            "reservation": "required", "phone": None,
+        },
+        {
+            "osm_id": "static/ch/6",
+            "name": "Balmhornhütte SAC",
+            "lat": 46.4128, "lon": 7.6389, "ele": 2175,
+            "operator": "SAC Sektion Bern", "website": None,
+            "sac_booking": "https://www.sac-cas.ch/de/huetten-und-touren/sac-tourenportal/2147000024",
+            "is_sac": True,
+            "wikidata": None, "wikipedia": None,
+            "capacity": 45, "country": "CH", "shelter": None,
+            "reservation": "recommended", "phone": None,
+        },
+    ]

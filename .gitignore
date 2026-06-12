@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Streamlit – secrets NIEMALS committen!
+.streamlit/secrets.toml
+
+# App-Cache
+cache/
+
+# Sonstiges
+.env
+.DS_Store
+Thumbs.db
