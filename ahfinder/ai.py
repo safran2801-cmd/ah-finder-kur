@@ -134,6 +134,29 @@ CHAT_TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "check_hut_availability",
+            "description": (
+                "Prüft die aktuelle Bettenverfügbarkeit einer SAC-Hütte für die nächsten 14 Tage. "
+                "Verwende dieses Tool wenn der Nutzer fragt ob eine Hütte frei ist, "
+                "Betten verfügbar sind, ob man reservieren kann, oder ähnliche Verfügbarkeitsfragen. "
+                "Gibt für jeden Tag an ob Betten frei (available) oder ausgebucht (booked) sind "
+                "sowie die Anzahl freier Plätze."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "hut_name": {
+                        "type": "string",
+                        "description": "Name der Hütte, z.B. 'Gruebenhütte AACBs' oder 'Schönbielhütte'",
+                    }
+                },
+                "required": ["hut_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "search_wikipedia",
             "description": (
                 "Sucht auf Wikipedia nach Informationen zu einer Berghütte oder einem alpinen Begriff. "
@@ -196,6 +219,43 @@ CHAT_TOOLS = [
         },
     },
 ]
+
+
+def _tool_check_availability(hut_name: str) -> str:
+    """Verfügbarkeit einer SAC-Hütte für die nächsten 14 Tage abfragen."""
+    from .availability import fetch_hut_availability, find_portal_url
+    from datetime import date
+
+    portal_url = find_portal_url(hut_name)
+    if not portal_url:
+        return (
+            f"Die Hütte '{hut_name}' wurde nicht im SAC-Hütten-Verzeichnis gefunden. "
+            "Keine Verfügbarkeitsdaten verfügbar."
+        )
+
+    avail = fetch_hut_availability(hut_name)
+    if not avail:
+        return (
+            f"Für '{hut_name}' sind keine Verfügbarkeitsdaten verfügbar "
+            "(kein Online-Reservierungssystem oder Hütte nicht erreichbar)."
+        )
+
+    today = date.today()
+    lines = [f"Verfügbarkeit '{hut_name}' (nächste 14 Tage):"]
+    for iso_date, info in sorted(avail.items()):
+        try:
+            d = date.fromisoformat(iso_date)
+        except ValueError:
+            continue
+        if d < today:
+            continue
+        weekday = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"][d.weekday()]
+        status_label = "frei" if info["status"] == "available" else "ausgebucht"
+        places = info["freePlaces"]
+        places_str = f", {places} Plätze frei" if info["status"] == "available" and places > 0 else ""
+        lines.append(f"  {weekday} {d.strftime('%d.%m.%Y')}: {status_label}{places_str}")
+
+    return "\n".join(lines)
 
 
 def _tool_wikipedia(query: str) -> str:
@@ -529,7 +589,9 @@ def chat_response(messages: list, context: str) -> str:
                 args = {}
             query = args.get("query", "")
 
-            if fn_name == "search_wikipedia":
+            if fn_name == "check_hut_availability":
+                result = _tool_check_availability(args.get("hut_name", ""))
+            elif fn_name == "search_wikipedia":
                 result = _tool_wikipedia(query)
             elif fn_name == "search_web":
                 result = _tool_web_search(query)
