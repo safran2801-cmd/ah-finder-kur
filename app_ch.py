@@ -364,6 +364,7 @@ if search_clicked:
                 sat_str,
                 sun_str,
                 only_photos=only_photos,
+                only_sac=only_sac,
                 progress=status.write,
             )
         except PipelineError as e:
