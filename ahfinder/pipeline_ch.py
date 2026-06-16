@@ -116,6 +116,7 @@ def run_search_ch(
     sat: str,
     sun: str,
     only_photos: bool = False,
+    only_sac: bool = False,
     progress: Optional[Callable[[str], None]] = None,
 ) -> dict:
     def step(msg: str) -> None:
@@ -161,12 +162,13 @@ def run_search_ch(
     target_enrich_n = min(CONFIG["enrich_n"], len(scored))
     max_enrich_n = target_enrich_n
     batch_size = target_enrich_n
-    target_photo_n = 0
+    target_match_n = 0
+    needs_expansion = only_photos or only_sac
 
-    if only_photos:
+    if needs_expansion:
         max_enrich_n = min(CONFIG["photo_enrich_n_max"], len(scored))
         batch_size = max(1, CONFIG["photo_enrich_batch_size"])
-        target_photo_n = CONFIG["top_n"]
+        target_match_n = CONFIG["top_n"]
 
     step(f"Anreicherung für zunächst {target_enrich_n} Top-Hütten ...")
     enriched: List[dict] = []
@@ -180,16 +182,21 @@ def run_search_ch(
         enriched.extend(_enrich_batch(scored[cursor:next_cursor], sat_label, sun_label))
         cursor = next_cursor
 
-        if not only_photos:
+        if not needs_expansion:
             break
 
-        photo_count = sum(1 for item in enriched if item.get("wikipediaImage"))
-        if len(enriched) >= target_enrich_n and photo_count >= target_photo_n:
+        match_count = sum(
+            1
+            for item in enriched
+            if (not only_photos or item.get("wikipediaImage"))
+            and (not only_sac or item.get("isSac"))
+        )
+        if len(enriched) >= target_enrich_n and match_count >= target_match_n:
             break
 
         if cursor < max_enrich_n:
             step(
-                f"Zu wenige Bildtreffer ({photo_count}/{target_photo_n}) - "
+                f"Zu wenige Treffer für aktive Filter ({match_count}/{target_match_n}) - "
                 "prüfe weitere Wetter-Kandidaten ..."
             )
 
